@@ -1,0 +1,234 @@
+package Principal;
+import java.util.Scanner;
+import java.util.Random;
+import java.util.ArrayList;
+/*
+ * EJERCICIO:
+ * ¡La Casa del Dragón ha finalizado y no volverá hasta 2026! 
+ * ¿Alguien se entera de todas las relaciones de parentesco
+ * entre personajes que aparecen en la saga?
+ * Desarrolla un árbol genealógico para relacionarlos (o invéntalo).
+ * Requisitos:
+ * 1. Estará formado por personas con las siguientes propiedades:
+ *    - Identificador único (obligatorio)
+ *    - Nombre (obligatorio)
+ *    - Pareja (opcional)
+ *    - Hijos (opcional)
+ * 2. Una persona sólo puede tener una pareja (para simplificarlo).
+ * 3. Las relaciones deben validarse dentro de lo posible.
+ *    Ejemplo: Un hijo no puede tener tres padres.
+ * Acciones:
+ * 1. Crea un programa que permita crear y modificar el árbol.
+ *    - Añadir y eliminar personas
+ *    - Modificar pareja e hijos
+ * 2. Podrás imprimir el árbol (de la manera que consideres).
+ * 
+ * NOTA: Ten en cuenta que la complejidad puede ser alta si
+ * se implementan todas las posibles relaciones. Intenta marcar
+ * tus propias reglas y límites para que te resulte asumible.
+ */
+ublic class Persona {
+	Random random = new Random();
+    private int id_unico;
+    private String nombre;
+    private Persona pareja;
+    private ArrayList<Persona> hijos;
+    
+	public Persona(String nombre) {
+		this.id_unico = random.nextInt();
+		this.nombre = nombre;
+		this.pareja = null;
+		this.hijos = new ArrayList<>();;
+	}
+
+	public int getId_unico() {
+		return id_unico;
+	}
+
+	public void setId_unico(int id_unico) {
+		this.id_unico = id_unico;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public Persona getPareja() {
+		return pareja;
+	}
+
+	public void setPareja(Persona pareja) {
+		this.pareja = pareja;
+	}
+
+	public ArrayList<Persona> getHijos() {
+	        return hijos;
+	 }
+
+	  public void agregarHijo(Persona hijo) {
+	        this.hijos.add(hijo);
+	  }
+	   @Override
+	    public String toString() {
+	        return nombre + " (ID: " + id_unico + ")";
+	    }
+    
+}
+public class Arbol {
+	static ArrayList <Persona> Arbol;
+	public Arbol() {
+		Arbol = new ArrayList<Persona>();
+	}
+	public static void AgregarPersona(Persona persona) {
+		for (Persona p : Arbol) {
+            if (p.getId_unico() == persona.getId_unico()) {
+            	System.out.println("La persona ya esta en el Arbol genialogico");
+            }else {
+            	Arbol.add(persona);
+            }
+        }		 
+    }
+	public void agregarPersona(Persona persona) {
+        if (buscarPersonaPorId(persona.getId_unico()) == null) {
+            Arbol.add(persona);
+        }
+    }
+	public boolean BuscarPesona(Persona persona) {
+	    return Arbol.contains(persona);
+	}
+    public void eliminarPersona(Persona persona) {
+    	for (Persona p : Arbol) {
+            if (p.getId_unico() == persona.getId_unico()) {
+            	System.out.println("La persona no se encuentra en el arbol");
+            }else{
+               Arbol.remove(persona);
+            }
+        }	
+	}
+    public static Persona buscarPersonaPorId(int id) {
+        for (Persona p : Arbol) {
+            if (p.getId_unico() == id) {
+                return p;
+            }
+        }
+        return null;
+    }
+    public  void agregarPareja(int idPersona1, int idPersona2) {
+        Persona persona1 = buscarPersonaPorId(idPersona1);
+        Persona persona2 = buscarPersonaPorId(idPersona2);
+
+        if (persona1 != null && persona2 != null) {
+            if (persona1.getPareja() == null && persona2.getPareja() == null) {
+                persona1.setPareja(persona2);
+                persona2.setPareja(persona1);
+            }
+        } 
+    }
+    public static void agregarHijo(int idPadre, int idHijo) {
+        Persona padre = buscarPersonaPorId(idPadre);
+        Persona hijo = buscarPersonaPorId(idHijo);
+
+        if (padre != null && hijo != null) {
+            padre.agregarHijo(hijo);
+
+            // Si el padre tiene pareja, agregar también el hijo a la pareja
+            if (padre.getPareja() != null) {
+                padre.getPareja().agregarHijo(hijo);
+            }
+        }
+    }
+    public static  void mostrarArbol() {
+        for (Persona persona : Arbol) {
+            mostrarPersona(persona, 0);
+        }
+    }
+    private static void mostrarPersona(Persona persona, int nivel) {
+        // Imprimir la persona actual con el nivel de indentación
+        String indentacion = Utilidades.repetirCadena(" ", nivel , 4); // 4 espacios por nivel
+        System.out.println(indentacion + persona);
+
+        // Imprimir la pareja si existe
+        if (persona.getPareja() != null) {
+            System.out.println(indentacion + " Pareja: " + persona.getPareja());
+        }
+
+        // Imprimir los hijos
+        if (!persona.getHijos().isEmpty()) {
+            System.out.println(indentacion + " Hijos:");
+            for (Persona hijo : persona.getHijos()) {
+                mostrarPersona(hijo, nivel + 1); // Incrementar el nivel para los hijos
+            }
+        }
+    }
+
+}
+public class Utilidades {
+
+    // Método para repetir una cadena n veces
+    public static String repetirCadena(String cadena, int veces, int j) {
+        StringBuilder resultado = new StringBuilder();
+        for (int i = 0; i < veces; i++) {
+            resultado.append(cadena);
+        }
+        return resultado.toString();
+    }
+}
+
+public class Principal {
+
+	public static void main(String[] args) {
+		  Principal mainInstance = new Principal(); // Crear una instancia de Main	  
+	      mainInstance.run();	
+	    }
+	   // Mueve toda la lógica del main a un método no estático
+    public void run() {
+        Arbol arbol = new Arbol();
+        System.out.println("Árbol genealógico de la Casa del Dragón");
+        try {
+            Scanner lectura = new Scanner(System.in);
+
+            System.out.println("Ingrese el nombre de su personaje: ");
+            String nombre = lectura.nextLine();
+
+            Persona personaje = new Persona(nombre);
+            arbol.agregarPersona(personaje);
+            System.out.println("¿Tiene pareja tu personaje? (sí/no): ");
+            String respuestaPareja = lectura.nextLine().trim().toLowerCase();
+            if (respuestaPareja.equals("sí")) {
+                System.out.println("Ingrese el nombre de la pareja: ");
+                String nombrePareja = lectura.nextLine();
+                Persona pareja = new Persona(nombrePareja);
+                arbol.agregarPersona(pareja);
+                arbol.agregarPareja(personaje.getId_unico(), pareja.getId_unico());
+            }
+
+            System.out.println("¿Tiene hijos tu personaje? (sí/no): ");
+            String respuestaHijos = lectura.nextLine().trim().toLowerCase();
+            if (respuestaHijos.equals("sí")) {
+                System.out.println("Ingrese el número de hijos: ");
+                int numeroHijos = lectura.nextInt();
+                lectura.nextLine(); // Limpiar el buffer del scanner
+                for (int i = 0; i < numeroHijos; i++) {
+                    System.out.println("Ingrese el nombre del hijo " + (i + 1) + ": ");
+                    String nombreHijo = lectura.nextLine();
+                    Persona hijo = new Persona(nombreHijo);
+                    arbol.agregarPersona(hijo);
+                    arbol.agregarHijo(personaje.getId_unico(), hijo.getId_unico());
+                }
+            }
+          
+
+            System.out.println("Árbol genealógico:");
+            arbol.mostrarArbol();
+
+        } catch (Exception e) {
+            System.out.println("Ha fallado la creación del scanner");
+            System.out.println(e.getMessage());
+        }
+    }
+
+}
